@@ -194,6 +194,8 @@ while la < 2.0
     forc=[forc,la];
     dispx=[dispx,d(19)];
     dispy=[dispy,d(20)];
+    
+   
 end
 
 % d=zeros(3*Np);
@@ -203,7 +205,7 @@ P=1
 u=d(19)
 v=-d(20)
 
-defbeam(coor,elem,d,0.5)
+defbeam(coor,elem,d,1)
 
 
     

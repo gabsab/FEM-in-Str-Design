@@ -109,7 +109,7 @@ end
 Kr=Kg(afg,afg);  %initial tangent stiffness matrix
 
 %displacement increment
-d_inc=-0.05;
+d_inc=-0.1;
 %d(afg,1)=d_inc*P;
 aux=[zeros(17,1); 1 ; zeros(11,1)];
 dd=d_inc*aux;
@@ -129,19 +129,16 @@ max_idx=18;
 %perform analysis
 step3=0;
 %initialize counter 
-c=1;
-while d(20) < 100
+%c=1;
+while d(19) < 100
     
     %assemble tangent vector 
     t=[Kr\P;1];
     %predictor
     %identify maximum displacement: node number and direction
-
-    if abs(d(20)) < 51 && max_idx ~= 17  
-        max_idx=18;               
-    elseif d(19) < 90 && step3 == 0
-        max_idx=14;
-        d_inc=0.05;
+    if d(19) < 90 && abs(d(20)) > 48
+        max_idx=17;
+        d_inc=0.1;
     end 
 %     
 %     if abs(d(19)) >= 90    
@@ -166,7 +163,7 @@ while d(20) < 100
     %create the big matrix
     resid=100;
     
-    Ka=[Kr,-P;aux',0];    
+        
   
     while resid>tol
         %assemble        
@@ -174,9 +171,6 @@ while d(20) < 100
         qg=zeros(3*Np,1);
         sgn=zeros(7*Ne,2);
         epsgn=zeros(7*Ne,2);
-        %egn=zeros(7*Ne,2);
-        %ego=zeros(7*Ne,2);
-        ddn=zeros(size(d));
         for i=1:Ne
             m1=elem(i,1);
             m2=elem(i,2);
@@ -184,7 +178,7 @@ while d(20) < 100
             x=[coor(m1,1:2) coor(m2,1:2)]';
             v=[3*m1-2:3*m1 3*m2-2:3*m2]';
             gp=[7*m1-6:7*m2-7]';
-            [q,K,sn,epsn]=corotbeamplastic( a, b, x, d(v),sgo(gp,c*2-1:c*2), epsgo(gp,c*2-1:c*2),do(v,c) );
+            [q,K,sn,epsn]=corotbeamplastic( a, b, x, d(v),sgo(gp,1:2), epsgo(gp,1:2),do(v) );
             Kg(v,v)=Kg(v,v)+K;
             qg(v,1)=qg(v,1)+q;
             sgn(gp,1:2)=sgn(gp,1:2)+sn;
@@ -193,7 +187,7 @@ while d(20) < 100
         end
         qr=qg(afg,1);
         Kr=Kg(afg,afg);  %converged stiffness matrix
-        
+        Ka=[Kr,-P;aux',0];
         residualr=qr-la*P;
         resid=norm(residualr);
         if resid>tol
@@ -210,12 +204,12 @@ while d(20) < 100
     %do(afg,s)=d(afg,1);
     
     %converged step counter 
-    c=c+1;
-    do=[do, d];
-    sgo=[sgo, sgn]; 
+    %c=c+1;
+    do= d;
+    sgo= sgn; 
     %stored the displacement matrix at converged step
     
-    epsgo=[epsgo, epsgn];
+    epsgo= epsgn;
     %ego=egn;  
         
     forc=[forc,la];
@@ -235,24 +229,6 @@ P=1
 u=d(19)
 v=-d(20)
 
-%defbeam(coor,elem,d,1)
-
-% 
-    %       % identify if the displacement increment has changed sign
-%     % compare the strain difference at the end and the begining of the last
-%     % step. If the direction of the load changed, use as reference a
-%     % previous point
-%     gp_index=1;
-%     if c > 2
-%         while gp_index <= size(epsgo,1)
-%             if epsgo(gp_index,c*2) < epsgo(gp_index,(c-1)*2) || epsgo(gp_index,c*2-1) < epsgo(gp_index,(c-1)*2-1)
-%                 gp_index=1;
-%                 c=c-1;
-%                 break;    
-%             else
-%                 gp_index=gp_index+1;
-%             end
-%         end
-%     end
+defbeam(coor,elem,d,0.5)
 
  

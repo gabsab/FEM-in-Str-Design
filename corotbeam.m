@@ -1,4 +1,4 @@
-function [ qg, Kg ] = corotbeam ( EA, EI, x, d )
+function [ qg, Kg, Ks ] = corotbeam ( EA, EI, x, d )
 %corotbeam returns the internal force vector and the tangent stiffness
 %matrix for a corotational beam element with linear formulation
 %   EA - axial stiffness

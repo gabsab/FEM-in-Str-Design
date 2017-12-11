@@ -18,13 +18,22 @@ function [sn, epsn, En ] = pstress1d( so,epso,de, E, Et, H, yield )
 sy=yield+H*epso;
 % elastic predictor
 sb=so+E*de;
-if abs(sb) <= abs(sy)
+ftol=yield*10e-6;
+% fyld=abs(sb)-abs(sy);
+if abs(sb) - abs(sy) <= ftol
     sn=sb;
     epsn=epso;
     En=E;
 else
-    sn = sb-E/(E+H)*(sb-sign(sb)*sy)+E*de;
-    epsn = epso +(abs(sb)-sy)/(E+H);
-    En=Et; 
+    
+   epsn = epso +(abs(sb)-sy)/(E+H);
+   sn = sb-E/(E+H)*(sb-sign(sb)*sy);%+E*de;
+   %sn = sb-sign(sb)*E*(abs(sb)-sy)/(E+H);
+   En=Et;
+%     sn=sb;
+%     epsn=epso;
+%     En=E;
+   
+   
 end
 

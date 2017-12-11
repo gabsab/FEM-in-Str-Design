@@ -1,13 +1,13 @@
-function [ qg, Kg ] = corotbeamplastic ( EA, EI, x, d )
+function [ qg, Kg,Ks ] = corotbeamBuckl ( EA, EI, x, d )
 %corotbeam returns the internal force vector and the tangent stiffness
 %matrix for a corotational beam element with linear formulation
 %   EA - axial stiffness
-%   EI - bending stiffness
+%   EI - bending stiffness 
 %   x - vector with coordinates of points [x1 y1 x2 y2]
 %   d - displacement vector [u1 v1 theta1 u2 v2 theta2 ]
 
 x21=x(3)-x(1);
-y21=x(4)-x(2);
+y21=x(4)-x(2);     
 u21=d(4)-d(1);
 v21=d(5)-d(2);
 theta1=d(3);
@@ -41,8 +41,8 @@ theta2_bar=theta2-alpha;
 
 % transformation matrix
 B=[  -c        -s        0       c        s        0
-    -s/Ln      c/Ln       1      s/Ln    -c/Ln      0
-    -s/Ln      c/Ln       0      s/Ln    -c/Ln      1 ];
+   -s/Ln      c/Ln       1      s/Ln    -c/Ln      0
+   -s/Ln      c/Ln       0      s/Ln    -c/Ln      1 ];
 %notations
 r=[-c  -s  0  c  s  0]';
 z=[ s  -c  0  -s c  0]';
@@ -55,29 +55,25 @@ BM=1/Ln^2*(r*z'+z*r');
 
 
 
-%% Linear strain definition with elastoplastic material
+%% Linear strain definition
 %local displacement vector
-for i=1:14
-    pe=[u_bar theta1_bar theta2_bar]';
-    
-    %calculate strain variation
-    [sn, epsn, En ] = pstress1d( so,epso,de, E, Et, H, yield )
-    %local element stiffness matrix
-    Ke=[E*A/Lo   0        0
-        0     4*En*I/Lo   2*En*I/Lo
-        0     2*En*I/Lo   4*En*I/Lo ];
-    %local internal force vector
-    Ke=
-    qe=Ke*pe;
-    N=qe(1);
-    M1=qe(2);
-    M2=qe(3);
-    %calculate global stiffness matrix
-    Kg=B'*Ke*B+BN*N+BM*(M1+M2);
-    %global internal force vector
-    qg=B'*qe;
-    so=
-end
-
+pe=[u_bar theta1_bar theta2_bar]';
+pe2=[u_bar 0 0
+    0 theta1_bar 0
+    0 0 theta2_bar];
+%local element stiffness matrix
+Ke=[EA/Lo   0        0
+    0     4*EI/Lo   2*EI/Lo 
+    0     2*EI/Lo   4*EI/Lo ];
+%local internal force vector
+qe=Ke*pe;
+N=qe(1);
+M1=qe(2);
+M2=qe(3);
+%calculate global stiffness matrix
+Kg=B'*Ke*B+BN*N+BM*(M1+M2);
+%global internal force vector
+qg=B'*qe;
+Ks=Ke*pe2;
 end
 
